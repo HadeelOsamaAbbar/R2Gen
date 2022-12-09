@@ -2,7 +2,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import copy
+import copy 
+# Assignment statements in Python do not copy objects
+# it is a method that is used on objects to create copies of them
+# Using the deepcopy() function of the copy module can provide a real/deep clone of the object
 import math
 
 import numpy as np
@@ -19,16 +22,17 @@ def clones(module, N):
 
 def attention(query, key, value, mask=None, dropout=None):
     d_k = query.size(-1)
-    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
+    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k) # d_k : dim of K (key)
+    # Z = softmax(Q K.T/root d_k) · V
     if mask is not None:
-        scores = scores.masked_fill(mask == 0, -1e9)
+        scores = scores.masked_fill(mask == 0, -1e9) # whats mask?
     p_attn = F.softmax(scores, dim=-1)
     if dropout is not None:
         p_attn = dropout(p_attn)
     return torch.matmul(p_attn, value), p_attn
 
 
-def subsequent_mask(size):
+def subsequent_mask(size): # whats work this function?
     attn_shape = (1, size, size)
     subsequent_mask = np.triu(np.ones(attn_shape), k=1).astype('uint8')
     return torch.from_numpy(subsequent_mask) == 0
@@ -72,11 +76,11 @@ class EncoderLayer(nn.Module):
         super(EncoderLayer, self).__init__()
         self.self_attn = self_attn
         self.feed_forward = feed_forward
-        self.sublayer = clones(SublayerConnection(d_model, dropout), 2)
+        self.sublayer = clones(SublayerConnection(d_model, dropout), 2) # ????
         self.d_model = d_model
 
     def forward(self, x, mask):
-        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask))
+        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask)) # ????
         return self.sublayer[1](x, self.feed_forward)
 
 
@@ -125,11 +129,12 @@ class DecoderLayer(nn.Module):
         self.sublayer = clones(ConditionalSublayerConnection(d_model, dropout, rm_num_slots, rm_d_model), 3)
 
     def forward(self, x, hidden_states, src_mask, tgt_mask, memory):
-        m = hidden_states
+        m = hidden_states # hidden_states in multi-head attention 
         x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, tgt_mask), memory)
         x = self.sublayer[1](x, lambda x: self.src_attn(x, m, m, src_mask), memory)
         return self.sublayer[2](x, self.feed_forward, memory)
-
+# Attention mask simply shows the transformer which tokens are padding,
+# placing 0s in the positions of padding tokens and 1s in the positions of actual tokens
 
 class ConditionalSublayerConnection(nn.Module):
     def __init__(self, d_model, dropout, rm_num_slots, rm_d_model):
@@ -141,14 +146,14 @@ class ConditionalSublayerConnection(nn.Module):
         return x + self.dropout(sublayer(self.norm(x, memory)))
 
 
-class ConditionalLayerNorm(nn.Module):
-    def __init__(self, d_model, rm_num_slots, rm_d_model, eps=1e-6):
+class ConditionalLayerNorm(nn.Module): # MCLN
+    def __init__(self, d_model, rm_num_slots, rm_d_model, eps=1e-6): 
         super(ConditionalLayerNorm, self).__init__()
         self.gamma = nn.Parameter(torch.ones(d_model))
         self.beta = nn.Parameter(torch.zeros(d_model))
         self.rm_d_model = rm_d_model
         self.rm_num_slots = rm_num_slots
-        self.eps = eps
+        self.eps = eps # learning rate.
 
         self.mlp_gamma = nn.Sequential(nn.Linear(rm_num_slots * rm_d_model, d_model),
                                        nn.ReLU(inplace=True),
@@ -159,10 +164,11 @@ class ConditionalLayerNorm(nn.Module):
                                       nn.Linear(d_model, d_model))
 
         for m in self.modules():
-            if isinstance(m, nn.Linear):
+            if isinstance(m, nn.Linear): # 
                 nn.init.xavier_uniform_(m.weight)
                 nn.init.constant_(m.bias, 0.1)
-
+# xavier_uniform_: Fills the input Tensor with values according to the method described in Understanding the difficulty
+# of training deep feedforward neural networks
     def forward(self, x, memory):
         mean = x.mean(-1, keepdim=True)
         std = x.std(-1, keepdim=True)
@@ -170,7 +176,7 @@ class ConditionalLayerNorm(nn.Module):
         delta_beta = self.mlp_beta(memory)
         gamma_hat = self.gamma.clone()
         beta_hat = self.beta.clone()
-        gamma_hat = torch.stack([gamma_hat] * x.size(0), dim=0)
+        gamma_hat = torch.stack([gamma_hat] * x.size(0), dim=0) # concat sequence of tensors along a new dim
         gamma_hat = torch.stack([gamma_hat] * x.size(1), dim=1)
         beta_hat = torch.stack([beta_hat] * x.size(0), dim=0)
         beta_hat = torch.stack([beta_hat] * x.size(1), dim=1)
@@ -180,12 +186,14 @@ class ConditionalLayerNorm(nn.Module):
 
 
 class MultiHeadedAttention(nn.Module):
-    def __init__(self, h, d_model, dropout=0.1):
+# where the output of the first MCLN is functionalized as the query to be fed into the following multi-head attention 
+# module together with the hidden states from the encoder as the key and value   
+    def __init__(self, h, d_model, dropout=0.1): # h == num of heads
         super(MultiHeadedAttention, self).__init__()
         assert d_model % h == 0
-        self.d_k = d_model // h
+        self.d_k = d_model // h # what's work (//)
         self.h = h
-        self.linears = clones(nn.Linear(d_model, d_model), 4)
+        self.linears = clones(nn.Linear(d_model, d_model), 4) # ????
         self.attn = None
         self.dropout = nn.Dropout(p=dropout)
 
@@ -221,7 +229,7 @@ class Embeddings(nn.Module):
         self.d_model = d_model
 
     def forward(self, x):
-        return self.lut(x) * math.sqrt(self.d_model)
+        return self.lut(x) * math.sqrt(self.d_model) # What's Benifit ???
 
 
 class PositionalEncoding(nn.Module):
@@ -306,7 +314,7 @@ class EncoderDecoder(AttModel):
         c = copy.deepcopy
         attn = MultiHeadedAttention(self.num_heads, self.d_model)
         ff = PositionwiseFeedForward(self.d_model, self.d_ff, self.dropout)
-        position = PositionalEncoding(self.d_model, self.dropout)
+        position = PositionalEncoding(self.d_model, self.dropout) # whats this layer in Archii ?!
         rm = RelationalMemory(num_slots=self.rm_num_slots, d_model=self.rm_d_model, num_heads=self.rm_num_heads)
         model = Transformer(
             Encoder(EncoderLayer(self.d_model, c(attn), c(ff), self.dropout), self.num_layers),
@@ -314,8 +322,7 @@ class EncoderDecoder(AttModel):
                 DecoderLayer(self.d_model, c(attn), c(attn), c(ff), self.dropout, self.rm_num_slots, self.rm_d_model),
                 self.num_layers),
             lambda x: x,
-            nn.Sequential(Embeddings(self.d_model, tgt_vocab), c(position)),
-            rm)
+            nn.Sequential(Embeddings(self.d_model, tgt_vocab), c(position)), rm) # whats this layer ?!
         for p in model.parameters():
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
@@ -326,7 +333,7 @@ class EncoderDecoder(AttModel):
         self.args = args
         self.num_layers = args.num_layers
         self.d_model = args.d_model
-        self.d_ff = args.d_ff
+        self.d_ff = args.d_ff # feed forward
         self.num_heads = args.num_heads
         self.dropout = args.dropout
         self.rm_num_slots = args.rm_num_slots

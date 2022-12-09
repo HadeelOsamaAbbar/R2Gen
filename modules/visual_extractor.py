@@ -9,9 +9,9 @@ class VisualExtractor(nn.Module):
         self.visual_extractor = args.visual_extractor
         self.pretrained = args.visual_extractor_pretrained
         model = getattr(models, self.visual_extractor)(pretrained=self.pretrained)
-        modules = list(model.children())[:-2]
+        modules = list(model.children())[:-2] ## whats this line?
         self.model = nn.Sequential(*modules)
-        self.avg_fnt = torch.nn.AvgPool2d(kernel_size=7, stride=1, padding=0)
+        self.avg_fnt = torch.nn.AvgPool2d(kernel_size=7, stride=1, padding=0) # is this layer to CNN?
 
     def forward(self, images):
         patch_feats = self.model(images)

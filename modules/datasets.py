@@ -13,7 +13,7 @@ class BaseDataset(Dataset):
         self.split = split
         self.tokenizer = tokenizer
         self.transform = transform
-        self.ann = json.loads(open(self.ann_path, 'r').read())
+        self.ann = json.loads(open(self.ann_path, 'r').read()) # what's doing this?
 
         self.examples = self.ann[self.split]
         for i in range(len(self.examples)):
@@ -24,19 +24,19 @@ class BaseDataset(Dataset):
         return len(self.examples)
 
 
-class IuxrayMultiImageDataset(BaseDataset):
+class IuxrayMultiImageDataset(BaseDataset): # as extends (inheret)
     def __getitem__(self, idx):
         example = self.examples[idx]
         image_id = example['id']
         image_path = example['image_path']
         image_1 = Image.open(os.path.join(self.image_dir, image_path[0])).convert('RGB')
-        image_2 = Image.open(os.path.join(self.image_dir, image_path[1])).convert('RGB')
+        image_2 = Image.open(os.path.join(self.image_dir, image_path[1])).convert('RGB') # two images because litriel and frontal!!!
         if self.transform is not None:
             image_1 = self.transform(image_1)
             image_2 = self.transform(image_2)
-        image = torch.stack((image_1, image_2), 0)
+        image = torch.stack((image_1, image_2), 0) # what's stack in torch?
         report_ids = example['ids']
-        report_masks = example['mask']
+        report_masks = example['mask'] # what's mask?
         seq_length = len(report_ids)
         sample = (image_id, image, report_ids, report_masks, seq_length)
         return sample
@@ -47,7 +47,7 @@ class MimiccxrSingleImageDataset(BaseDataset):
         example = self.examples[idx]
         image_id = example['id']
         image_path = example['image_path']
-        image = Image.open(os.path.join(self.image_dir, image_path[0])).convert('RGB')
+        image = Image.open(os.path.join(self.image_dir, image_path[0])).convert('RGB') # one image in this dataset
         if self.transform is not None:
             image = self.transform(image)
         report_ids = example['ids']

@@ -24,7 +24,7 @@ class Tokenizer(object):
                 total_tokens.append(token)
 
         counter = Counter(total_tokens)
-        vocab = [k for k, v in counter.items() if v >= self.threshold] + ['<unk>']
+        vocab = [k for k, v in counter.items() if v >= self.threshold] + ['<unk>'] # to filter data (words), get important words.
         vocab.sort()
         token2idx, idx2token = {}, {}
         for idx, token in enumerate(vocab):

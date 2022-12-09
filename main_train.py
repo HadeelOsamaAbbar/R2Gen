@@ -15,13 +15,13 @@ def parse_agrs():
 
     # Data input settings
     parser.add_argument('--image_dir', type=str, default='data/iu_xray/images/', help='the path to the directory containing the data.')
-    parser.add_argument('--ann_path', type=str, default='data/iu_xray/annotation.json', help='the path to the directory containing the data.')
+    parser.add_argument('--ann_path', type=str, default='data/iu_xray/reports/1.xml', help='the path to the directory containing the data.')
 
     # Data loader settings
     parser.add_argument('--dataset_name', type=str, default='iu_xray', choices=['iu_xray', 'mimic_cxr'], help='the dataset to be used.')
     parser.add_argument('--max_seq_length', type=int, default=60, help='the maximum sequence length of the reports.')
     parser.add_argument('--threshold', type=int, default=3, help='the cut off frequency for the words.')
-    parser.add_argument('--num_workers', type=int, default=2, help='the number of workers for dataloader.')
+    parser.add_argument('--num_workers', type=int, default=2, help='the number of workers for dataloader.') # whats mean number of workers?
     parser.add_argument('--batch_size', type=int, default=16, help='the number of samples for a batch')
 
     # Model settings (for visual extractor)
@@ -97,7 +97,7 @@ def main():
     np.random.seed(args.seed)
 
     # create tokenizer
-    tokenizer = Tokenizer(args)
+    tokenizer = Tokenizer(args) # it will return token2idx, idx2token.. they have important vocabulary with id
 
     # create data loader
     train_dataloader = R2DataLoader(args, tokenizer, split='train', shuffle=True)

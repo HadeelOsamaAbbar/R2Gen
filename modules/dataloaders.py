@@ -4,6 +4,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from .datasets import IuxrayMultiImageDataset, MimiccxrSingleImageDataset
 
+# transformer is a library of state-of-the-art pre-trained models for Natural Language Processing (NLP)
 
 class R2DataLoader(DataLoader):
     def __init__(self, args, tokenizer, split, shuffle):
@@ -39,15 +40,15 @@ class R2DataLoader(DataLoader):
             'dataset': self.dataset,
             'batch_size': self.batch_size,
             'shuffle': self.shuffle,
-            'collate_fn': self.collate_fn,
-            'num_workers': self.num_workers
+            'collate_fn': self.collate_fn, # ?
+            'num_workers': self.num_workers # ?
         }
-        super().__init__(**self.init_kwargs)
+        super().__init__(**self.init_kwargs) # extends from any class ?
 
     @staticmethod
     def collate_fn(data):
         images_id, images, reports_ids, reports_masks, seq_lengths = zip(*data)
-        images = torch.stack(images, 0)
+        images = torch.stack(images, 0) ## (torch.stack) Concatenates a sequence of tensors along a new dimension. All tensors need to be of the same size.
         max_seq_length = max(seq_lengths)
 
         targets = np.zeros((len(reports_ids), max_seq_length), dtype=int)
@@ -59,5 +60,5 @@ class R2DataLoader(DataLoader):
         for i, report_masks in enumerate(reports_masks):
             targets_masks[i, :len(report_masks)] = report_masks
 
-        return images_id, images, torch.LongTensor(targets), torch.FloatTensor(targets_masks)
-
+        return images_id, images, torch.LongTensor(targets), torch.FloatTensor(targets_masks) # benfits of LongTensor(), FloatTensor()
+# (torch.Tensor): is a multi-dimensional matrix containing elements of a single data type.
