@@ -59,32 +59,32 @@ class Transformer(nn.Module):
         return self.decoder(self.tgt_embed(tgt), hidden_states, src_mask, tgt_mask, memory)
 
 
-class Encoder(nn.Module):
+class Encoder(nn.Module): # _/
     def __init__(self, layer, N):
         super(Encoder, self).__init__()
         self.layers = clones(layer, N)
         self.norm = LayerNorm(layer.d_model)
 
-    def forward(self, x, mask):
+    def forward(self, x, mask): # mask ?!
         for layer in self.layers:
             x = layer(x, mask)
         return self.norm(x)
 
 
-class EncoderLayer(nn.Module):
+class EncoderLayer(nn.Module): # _/
     def __init__(self, d_model, self_attn, feed_forward, dropout):
         super(EncoderLayer, self).__init__()
         self.self_attn = self_attn
         self.feed_forward = feed_forward
-        self.sublayer = clones(SublayerConnection(d_model, dropout), 2) # ????
+        self.sublayer = clones(SublayerConnection(d_model, dropout), 2) # SublayerConnection: take model then normalize its parameters then clone it in some obj.
         self.d_model = d_model
 
     def forward(self, x, mask):
-        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask)) # ????
-        return self.sublayer[1](x, self.feed_forward)
+        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask)) # output from self_attn after norm then enter it in feed_forward layer
+        return self.sublayer[1](x, self.feed_forward) # output from feed_forward after norm then return it as output from EncoderLayer
 
 
-class SublayerConnection(nn.Module):
+class SublayerConnection(nn.Module): # This do normalization and dropout. _/
     def __init__(self, d_model, dropout):
         super(SublayerConnection, self).__init__()
         self.norm = LayerNorm(d_model)
@@ -94,17 +94,17 @@ class SublayerConnection(nn.Module):
         return x + self.dropout(sublayer(self.norm(x)))
 
 
-class LayerNorm(nn.Module):
+class LayerNorm(nn.Module): # _/
     def __init__(self, features, eps=1e-6):
         super(LayerNorm, self).__init__()
-        self.gamma = nn.Parameter(torch.ones(features))
-        self.beta = nn.Parameter(torch.zeros(features))
+        self.gamma = nn.Parameter(torch.ones(features)) # matrix with ones values, with features dim.
+        self.beta = nn.Parameter(torch.zeros(features)) # matrix with zeros values, with features dim.
         self.eps = eps
 
     def forward(self, x):
         mean = x.mean(-1, keepdim=True)
         std = x.std(-1, keepdim=True)
-        return self.gamma * (x - mean) / (std + self.eps) + self.beta
+        return self.gamma * (x - mean) / (std + self.eps) + self.beta # rule in doing normalization.
 
 
 class Decoder(nn.Module):
@@ -115,7 +115,7 @@ class Decoder(nn.Module):
 
     def forward(self, x, hidden_states, src_mask, tgt_mask, memory):
         for layer in self.layers:
-            x = layer(x, hidden_states, src_mask, tgt_mask, memory)
+            x = layer(x, hidden_states, src_mask, tgt_mask, memory) # (src_mask, tgt_mask) : mask???
         return self.norm(x)
 
 
@@ -134,7 +134,7 @@ class DecoderLayer(nn.Module):
         x = self.sublayer[1](x, lambda x: self.src_attn(x, m, m, src_mask), memory)
         return self.sublayer[2](x, self.feed_forward, memory)
 # Attention mask simply shows the transformer which tokens are padding,
-# placing 0s in the positions of padding tokens and 1s in the positions of actual tokens
+# placing 0s in the positions of padding tokens  // and 1s in the positions of actual tokens
 
 class ConditionalSublayerConnection(nn.Module):
     def __init__(self, d_model, dropout, rm_num_slots, rm_d_model):
@@ -164,11 +164,11 @@ class ConditionalLayerNorm(nn.Module): # MCLN
                                       nn.Linear(d_model, d_model))
 
         for m in self.modules():
-            if isinstance(m, nn.Linear): # 
+            if isinstance(m, nn.Linear): 
                 nn.init.xavier_uniform_(m.weight)
                 nn.init.constant_(m.bias, 0.1)
 # xavier_uniform_: Fills the input Tensor with values according to the method described in Understanding the difficulty
-# of training deep feedforward neural networks
+# of training deep feedforward neural networks.
     def forward(self, x, memory):
         mean = x.mean(-1, keepdim=True)
         std = x.std(-1, keepdim=True)
@@ -185,9 +185,10 @@ class ConditionalLayerNorm(nn.Module): # MCLN
         return gamma_hat * (x - mean) / (std + self.eps) + beta_hat
 
 
-class MultiHeadedAttention(nn.Module):
+class MultiHeadedAttention(nn.Module): # Multi-head attention is used to model Q, K and V so as to depict relations of different patterns.
+
 # where the output of the first MCLN is functionalized as the query to be fed into the following multi-head attention 
-# module together with the hidden states from the encoder as the key and value   
+# module together with the hidden states from the encoder as the %key and %value   
     def __init__(self, h, d_model, dropout=0.1): # h == num of heads
         super(MultiHeadedAttention, self).__init__()
         assert d_model % h == 0
@@ -211,8 +212,8 @@ class MultiHeadedAttention(nn.Module):
         return self.linears[-1](x)
 
 
-class PositionwiseFeedForward(nn.Module):
-    def __init__(self, d_model, d_ff, dropout=0.1):
+class PositionwiseFeedForward(nn.Module): # _/
+    def __init__(self, d_model, d_ff, dropout = 0.1):
         super(PositionwiseFeedForward, self).__init__()
         self.w_1 = nn.Linear(d_model, d_ff)
         self.w_2 = nn.Linear(d_ff, d_model)
@@ -225,14 +226,14 @@ class PositionwiseFeedForward(nn.Module):
 class Embeddings(nn.Module):
     def __init__(self, d_model, vocab):
         super(Embeddings, self).__init__()
-        self.lut = nn.Embedding(vocab, d_model)
+        self.lut = nn.Embedding(vocab, d_model) #cnn
         self.d_model = d_model
 
     def forward(self, x):
         return self.lut(x) * math.sqrt(self.d_model) # What's Benifit ???
 
 
-class PositionalEncoding(nn.Module):
+class PositionalEncoding(nn.Module): # to encode the position of each token
     def __init__(self, d_model, dropout, max_len=5000):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(p=dropout)
@@ -312,7 +313,7 @@ class EncoderDecoder(AttModel):
 
     def make_model(self, tgt_vocab):
         c = copy.deepcopy
-        attn = MultiHeadedAttention(self.num_heads, self.d_model)
+        attn = MultiHeadedAttention(self.num_heads, self.d_model) # d_model: the dimension of Transformer
         ff = PositionwiseFeedForward(self.d_model, self.d_ff, self.dropout)
         position = PositionalEncoding(self.d_model, self.dropout) # whats this layer in Archii ?!
         rm = RelationalMemory(num_slots=self.rm_num_slots, d_model=self.rm_d_model, num_heads=self.rm_num_heads)
@@ -321,7 +322,7 @@ class EncoderDecoder(AttModel):
             Decoder(
                 DecoderLayer(self.d_model, c(attn), c(attn), c(ff), self.dropout, self.rm_num_slots, self.rm_d_model),
                 self.num_layers),
-            lambda x: x,
+            lambda x: x, # The first x is its parameter, (x)
             nn.Sequential(Embeddings(self.d_model, tgt_vocab), c(position)), rm) # whats this layer ?!
         for p in model.parameters():
             if p.dim() > 1:
@@ -392,3 +393,11 @@ class EncoderDecoder(AttModel):
         out = self.model.decode(memory, mask, ys, subsequent_mask(ys.size(1)).to(memory.device))
 
         return out[:, -1], [ys.unsqueeze(0)]
+
+
+
+## Doneee:
+'''
+Transformer()
+all Encoder() except MultiHeadedAttention()
+'''        

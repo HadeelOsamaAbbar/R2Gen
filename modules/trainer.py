@@ -196,7 +196,7 @@ class Trainer(BaseTrainer):
             loss = self.criterion(output, reports_ids, reports_masks)
             train_loss += loss.item()
             self.optimizer.zero_grad()
-            loss.backward()
+            loss.backward() # this take time (because it's backward)
             torch.nn.utils.clip_grad_value_(self.model.parameters(), 0.1)
             self.optimizer.step()
         log = {'train_loss': train_loss / len(self.train_dataloader)}

@@ -24,7 +24,7 @@ class R2GenModel(nn.Module):
         return super().__str__() + '\nTrainable parameters: {}'.format(params)
 
     def forward_iu_xray(self, images, targets=None, mode='train'):
-        att_feats_0, fc_feats_0 = self.visual_extractor(images[:, 0])
+        att_feats_0, fc_feats_0 = self.visual_extractor(images[:, 0]) # patch_feats, avg_feats
         att_feats_1, fc_feats_1 = self.visual_extractor(images[:, 1]) # twice calling to visual_extractor becaose front & letiral
         fc_feats = torch.cat((fc_feats_0, fc_feats_1), dim=1)
         att_feats = torch.cat((att_feats_0, att_feats_1), dim=1)

@@ -19,3 +19,5 @@ class VisualExtractor(nn.Module):
         batch_size, feat_size, _, _ = patch_feats.shape
         patch_feats = patch_feats.reshape(batch_size, feat_size, -1).permute(0, 2, 1)
         return patch_feats, avg_feats
+
+        # visual extractor to extract patch features with the dimension of each feature set to 2,048.
