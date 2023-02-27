@@ -43,8 +43,8 @@ class Transformer(nn.Module):
         super(Transformer, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
-        self.src_embed = src_embed
-        self.tgt_embed = tgt_embed
+        self.src_embed = src_embed # encoder
+        self.tgt_embed = tgt_embed # decoder
         self.rm = rm
 
     def forward(self, src, tgt, src_mask, tgt_mask):
@@ -90,7 +90,7 @@ class SublayerConnection(nn.Module): # This do normalization and dropout. _/
         self.norm = LayerNorm(d_model)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x, sublayer):
+    def forward(self, x, sublayer): # Add
         return x + self.dropout(sublayer(self.norm(x)))
 
 
@@ -215,9 +215,9 @@ class MultiHeadedAttention(nn.Module): # Multi-head attention is used to model Q
 class PositionwiseFeedForward(nn.Module): # _/
     def __init__(self, d_model, d_ff, dropout = 0.1):
         super(PositionwiseFeedForward, self).__init__()
-        self.w_1 = nn.Linear(d_model, d_ff)
-        self.w_2 = nn.Linear(d_ff, d_model)
-        self.dropout = nn.Dropout(dropout)
+        self.w_1 = nn.Linear(d_model, d_ff) # d_ff: the dimension of FFN.
+        self.w_2 = nn.Linear(d_ff, d_model) # d_model: the dimension of Transformer.
+        self.dropout = nn.Dropout(dropout)  
 
     def forward(self, x):
         return self.w_2(self.dropout(F.relu(self.w_1(x))))
