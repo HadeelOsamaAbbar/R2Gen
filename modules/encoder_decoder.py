@@ -58,7 +58,7 @@ class Transformer(nn.Module):
         memory = self.rm(self.tgt_embed(tgt), memory)
         return self.decoder(self.tgt_embed(tgt), hidden_states, src_mask, tgt_mask, memory)
 
-
+# outputs are the hidden states hi encoded from the input features extracted from the visual extractor
 class Encoder(nn.Module): # _/
     def __init__(self, layer, N):
         super(Encoder, self).__init__()

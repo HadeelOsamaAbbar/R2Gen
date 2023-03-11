@@ -80,7 +80,7 @@ def parse_agrs():
     # Others
     parser.add_argument('--seed', type=int, default=9233, help='.')
     parser.add_argument('--resume', type=str, help='whether to resume the training from existing checkpoints.')
-    parser.add_argument('--load', default="", type=str, help='whether to load a pre-trained model.')
+    parser.add_argument('--load', default="results/iu_xray/model_best.pth", type=str, help='whether to load a pre-trained model.')
 
     args = parser.parse_args()
     return args
