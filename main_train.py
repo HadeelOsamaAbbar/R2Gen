@@ -80,7 +80,7 @@ def parse_agrs():
 
     # Others
     parser.add_argument('--seed', type=int, default=9233, help='.')
-    parser.add_argument('--resume', type=str, default="results/iu_xray/current_checkpoint.pth", help='whether to resume the training from existing checkpoints.')
+    parser.add_argument('--resume', type=str, default="/kaggle/working/results/iu_xray/current_checkpoint.pth", help='whether to resume the training from existing checkpoints.')
 
     args = parser.parse_args()
     return args
