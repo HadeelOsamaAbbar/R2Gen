@@ -76,8 +76,9 @@ class Tester(BaseTester):
                     self.device), reports_masks.to(self.device)
                 output = self.model(images, mode='sample')
 
-                print("output: ", output)
+                # print("output: ", output)
                 reports = self.model.tokenizer.decode_batch(output.cpu().numpy())
+                print("image id:", images_id)
                 print("reports: ", reports)
                 ground_truths = self.model.tokenizer.decode_batch(reports_ids[:, 1:].cpu().numpy())
                 test_res.extend(reports)
