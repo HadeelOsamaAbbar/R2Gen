@@ -25,7 +25,7 @@ def parse_agrs():
     parser.add_argument('--batch_size', type=int, default=16, help='the number of samples for a batch')
 
     # Model settings (for visual extractor)
-    parser.add_argument('--visual_extractor', type=str, default='resnet101', help='the visual extractor to be used.')
+    parser.add_argument('--visual_extractor', type=str, default='resnet101', help='the visual extractor to be used.') # ResNet101_Weights.DEFAULT
     parser.add_argument('--visual_extractor_pretrained', type=bool, default=True, help='whether to load the pretrained visual extractor')
 
     # Model settings (for Transformer)
@@ -58,13 +58,13 @@ def parse_agrs():
 
     # Trainer settings
     parser.add_argument('--n_gpu', type=int, default=1, help='the number of gpus to be used.')
-    parser.add_argument('--epochs', type=int, default=100, help='the number of training epochs.')
+    parser.add_argument('--epochs', type=int, default=2, help='the number of training epochs.')
     parser.add_argument('--save_dir', type=str, default='results/iu_xray', help='the patch to save the models.')
     parser.add_argument('--record_dir', type=str, default='records/', help='the patch to save the results of experiments')
-    parser.add_argument('--save_period', type=int, default=1, help='the saving period.')
+    parser.add_argument('--save_period', type=int, default=1, help='the saving period.') # ?????
     parser.add_argument('--monitor_mode', type=str, default='max', choices=['min', 'max'], help='whether to max or min the metric.')
     parser.add_argument('--monitor_metric', type=str, default='BLEU_4', help='the metric to be monitored.')
-    parser.add_argument('--early_stop', type=int, default=50, help='the patience of training.')
+    parser.add_argument('--early_stop', type=int, default=50, help='the patience of training.') # stooop
 
     # Optimization
     parser.add_argument('--optim', type=str, default='Adam', help='the type of the optimizer.')
