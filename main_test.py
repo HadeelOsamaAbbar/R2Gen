@@ -13,8 +13,8 @@ def parse_agrs():
     parser = argparse.ArgumentParser()
 
     # Data input settings
-    parser.add_argument('--image_dir', type=str, default='/kaggle/input/iuxray/iu_xray/images', help='the path to the directory containing the data.')
-    parser.add_argument('--ann_path', type=str, default='/kaggle/input/iuxray/iu_xray/annotation.json', help='the path to the directory containing the data.')
+    parser.add_argument('--image_dir', type=str, default='data/iu_xray/images', help='the path to the directory containing the data.')
+    parser.add_argument('--ann_path', type=str, default='data/iu_xray/annotation.json', help='the path to the directory containing the data.')
 
     # Data loader settings
     parser.add_argument('--dataset_name', type=str, default='iu_xray', choices=['iu_xray', 'mimic_cxr'], help='the dataset to be used.')
@@ -57,7 +57,7 @@ def parse_agrs():
 
     # Trainer settings
     parser.add_argument('--n_gpu', type=int, default=1, help='the number of gpus to be used.')
-    parser.add_argument('--epochs', type=int, default=1, help='the number of training epochs.')
+    parser.add_argument('--epochs', type=int, default=50, help='the number of training epochs.')
     parser.add_argument('--save_dir', type=str, default='results/iu_xray', help='the patch to save the models.')
     parser.add_argument('--record_dir', type=str, default='records/', help='the patch to save the results of experiments')
     parser.add_argument('--save_period', type=int, default=1, help='the saving period.')
@@ -79,8 +79,8 @@ def parse_agrs():
 
     # Others
     parser.add_argument('--seed', type=int, default=9233, help='.')
-    parser.add_argument('--resume', type=str, default="/kaggle/working/results/iu_xray/current_checkpoint.pth", help='whether to resume the training from existing checkpoints.')
-    parser.add_argument('--load', default="/kaggle/working/results/iu_xray/model_best.pth", type=str, help='whether to load a pre-trained model.')
+    parser.add_argument('--resume', type=str, default="/results/iu_xray/current_checkpoint.pth", help='whether to resume the training from existing checkpoints.')
+    parser.add_argument('--load', default="results/iu_xray/model_best.pth", type=str, help='whether to load a pre-trained model.')
 
     args = parser.parse_args()
     return args
@@ -115,5 +115,6 @@ def main():
 
 
 if __name__ == '__main__':
+    print(torch.cuda.is_available())
     print(torch.cuda.is_available())
     main()

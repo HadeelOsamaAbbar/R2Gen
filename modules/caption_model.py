@@ -5,14 +5,33 @@ from __future__ import print_function
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import logging
 import modules.utils as utils
 
 
 class CaptionModel(nn.Module):
     def __init__(self):
         super(CaptionModel, self).__init__()
+        # setup GPU device if available, move model into configured device
+        logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
+                            datefmt='%m/%d/%Y %H:%M:%S', level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+        self.device, device_ids = self._prepare_device(1)
 
+    def _prepare_device(self, n_gpu_use):
+        n_gpu = torch.cuda.device_count()
+        if n_gpu_use > 0 and n_gpu == 0:
+            self.logger.warning(
+                "Warning: There\'s no GPU available on this machine," "training will be performed on CPU.")
+            n_gpu_use = 0
+        if n_gpu_use > n_gpu:
+            self.logger.warning(
+                "Warning: The number of GPU\'s configured to use is {}, but only {} are available " "on this machine.".format(
+                    n_gpu_use, n_gpu))
+            n_gpu_use = n_gpu
+        device = torch.device('cuda:0' if n_gpu_use > 0 else 'cpu')
+        list_ids = list(range(n_gpu_use))
+        return device, list_ids
     # implements beam search
     # calls beam_step and returns the final set of beams
     # augments log-probabilities with diversity terms when number of groups > 1
@@ -191,7 +210,7 @@ class CaptionModel(nn.Module):
                     # move the current group one step forward in time
 
                     it = beam_seq_table[divm][:, :, t - divm].reshape(-1)
-                    logprobs_table[divm], state_table[divm] = self.get_logprobs_state(it.cuda(), *(
+                    logprobs_table[divm], state_table[divm] = self.get_logprobs_state(it.to(self.device), *(
                             args[divm] + [state_table[divm]]))
                     logprobs_table[divm] = F.log_softmax(logprobs_table[divm] / temperature, dim=-1)
 

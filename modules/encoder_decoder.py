@@ -56,6 +56,11 @@ class Transformer(nn.Module):
     def decode(self, hidden_states, src_mask, tgt, tgt_mask):
         memory = self.rm.init_memory(hidden_states.size(0)).to(hidden_states)
         memory = self.rm(self.tgt_embed(tgt), memory)
+        # tgt: [16,59]
+        # hidden_states: [16,98,512]
+        # src_mask: [16,1,98]
+        # tgt_mask: [16,59,59]
+        # memory: [16, 59, 1536]
         return self.decoder(self.tgt_embed(tgt), hidden_states, src_mask, tgt_mask, memory)
 
 # outputs are the hidden states hi encoded from the input features extracted from the visual extractor
@@ -169,9 +174,10 @@ class ConditionalLayerNorm(nn.Module): # MCLN
                 nn.init.constant_(m.bias, 0.1)
 # xavier_uniform_: Fills the input Tensor with values according to the method described in Understanding the difficulty
 # of training deep feedforward neural networks.
-    def forward(self, x, memory):
+    def forward(self, x, memory): # x refers to the output from the previous module (layer)
         mean = x.mean(-1, keepdim=True)
         std = x.std(-1, keepdim=True)
+        # memory:  Mt is expanded into a vector mt by simply concatenating all rows from Mt
         delta_gamma = self.mlp_gamma(memory)
         delta_beta = self.mlp_beta(memory)
         gamma_hat = self.gamma.clone()
@@ -182,7 +188,7 @@ class ConditionalLayerNorm(nn.Module): # MCLN
         beta_hat = torch.stack([beta_hat] * x.size(1), dim=1)
         gamma_hat += delta_gamma
         beta_hat += delta_beta
-        return gamma_hat * (x - mean) / (std + self.eps) + beta_hat
+        return gamma_hat * (x - mean) / (std + self.eps) + beta_hat # normalization process
 
 
 class MultiHeadedAttention(nn.Module): # Multi-head attention is used to model Q, K and V so as to depict relations of different patterns.
@@ -270,7 +276,7 @@ class RelationalMemory(nn.Module):
         self.U = nn.Linear(self.d_model, self.d_model * 2)
 
     def init_memory(self, batch_size):
-        memory = torch.stack([torch.eye(self.num_slots)] * batch_size)
+        memory = torch.stack([torch.eye(self.num_slots)] * batch_size) # torch.stack : Concatenates a sequence of tensors along a new dimension.
         if self.d_model > self.num_slots:
             diff = self.d_model - self.num_slots
             pad = torch.zeros((batch_size, self.num_slots, diff))
@@ -278,13 +284,13 @@ class RelationalMemory(nn.Module):
         elif self.d_model < self.num_slots:
             memory = memory[:, :, :self.d_model]
 
-        return memory
+        return memory # [16,3,512]
 
-    def forward_step(self, input, memory):
+    def forward_step(self, input, memory): # input is the embedding of the last output  y(t-1)
         memory = memory.reshape(-1, self.num_slots, self.d_model)
-        q = memory
-        k = torch.cat([memory, input.unsqueeze(1)], 1)
-        v = torch.cat([memory, input.unsqueeze(1)], 1)
+        q = memory # query is previos matrix M(t-1)
+        k = torch.cat([memory, input.unsqueeze(1)], 1) # key (concat M(t-1) & y(t-1))
+        v = torch.cat([memory, input.unsqueeze(1)], 1) # value (concat M(t-1) & y(t-1))
         next_memory = memory + self.attn(q, k, v)
         next_memory = next_memory + self.mlp(next_memory)
 
@@ -297,16 +303,16 @@ class RelationalMemory(nn.Module):
         next_memory = input_gate * torch.tanh(next_memory) + forget_gate * memory
         next_memory = next_memory.reshape(-1, self.num_slots * self.d_model)
 
-        return next_memory
+        return next_memory # [16,1536]
 
-    def forward(self, inputs, memory):
+    def forward(self, inputs, memory): # inputs: [16,59,512]
         outputs = []
-        for i in range(inputs.shape[1]):
+        for i in range(inputs.shape[1]): # 59 iteration
             memory = self.forward_step(inputs[:, i], memory)
             outputs.append(memory)
-        outputs = torch.stack(outputs, dim=1)
+        outputs = torch.stack(outputs, dim=1) # torch.stack : Concatenates a sequence of tensors along a new dimension.
 
-        return outputs
+        return outputs # [16,59,1536]
 
 
 class EncoderDecoder(AttModel):
