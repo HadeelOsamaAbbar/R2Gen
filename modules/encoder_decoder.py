@@ -235,8 +235,9 @@ class Embeddings(nn.Module):
         self.lut = nn.Embedding(vocab, d_model) #cnn
         self.d_model = d_model
 
-    def forward(self, x):
-        return self.lut(x) * math.sqrt(self.d_model) # What's Benifit ???
+    def forward(self, x): # x: tgt [16, 59]
+        res = self.lut(x) * math.sqrt(self.d_model) # lut : [761, 512]
+        return res # [16, 59, 512]
 
 
 class PositionalEncoding(nn.Module): # to encode the position of each token
@@ -287,9 +288,9 @@ class RelationalMemory(nn.Module):
         return memory # [16,3,512]
 
     def forward_step(self, input, memory): # input is the embedding of the last output  y(t-1)
-        memory = memory.reshape(-1, self.num_slots, self.d_model)
+        memory = memory.reshape(-1, self.num_slots, self.d_model) #[16, 3, 512]
         q = memory # query is previos matrix M(t-1)
-        k = torch.cat([memory, input.unsqueeze(1)], 1) # key (concat M(t-1) & y(t-1))
+        k = torch.cat([memory, input.unsqueeze(1)], 1) # key (concat M(t-1) & y(t-1)) ### [16, 4, 512])
         v = torch.cat([memory, input.unsqueeze(1)], 1) # value (concat M(t-1) & y(t-1))
         next_memory = memory + self.attn(q, k, v)
         next_memory = next_memory + self.mlp(next_memory)
@@ -347,7 +348,7 @@ class EncoderDecoder(AttModel):
         self.rm_num_heads = args.rm_num_heads
         self.rm_d_model = args.rm_d_model
 
-        tgt_vocab = self.vocab_size + 1
+        tgt_vocab = self.vocab_size + 1 #### 760 + 1
 
         self.model = self.make_model(tgt_vocab)
         self.logit = nn.Linear(args.d_model, tgt_vocab)

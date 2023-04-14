@@ -1,4 +1,4 @@
-from flask import Flask, jsonify,  redirect, url_for, request, render_template
+from flask import Flask, request, render_template
 from PIL import Image
 from werkzeug.utils import secure_filename
 import os
@@ -63,8 +63,7 @@ def upload():
         f=[]
         for item in request.files.getlist('file1'):
             f.append(item)
-        f1 = request.files['file1']
-        f2 = request.files['file1']
+        
 
         # Save the file to ./uploads
         basepath = os.path.dirname(__file__)
