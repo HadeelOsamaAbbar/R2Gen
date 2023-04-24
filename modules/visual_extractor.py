@@ -11,7 +11,7 @@ class VisualExtractor(nn.Module):
         model = getattr(models, self.visual_extractor)(pretrained=self.pretrained)
         modules = list(model.children())[:-2] ## whats this line?
         self.model = nn.Sequential(*modules)
-        self.avg_fnt = torch.nn.AvgPool2d(kernel_size=7, stride=1, padding=0) # is this layer to CNN?
+        self.avg_fnt = torch.nn.AvgPool2d(kernel_size=5, stride=1, padding=0) # is this layer to CNN?
 
     def forward(self, images):
         patch_feats = self.model(images)
