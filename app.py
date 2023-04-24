@@ -1,10 +1,12 @@
-from flask import Flask, request, render_template
+from flask import Flask, jsonify,  redirect, url_for, request, render_template
 from PIL import Image
 from werkzeug.utils import secure_filename
 import os
 import torch
 from torchvision import transforms
 from main_test import *
+import time
+
 app = Flask(__name__)
 
 # # preprocess Image #
@@ -58,12 +60,16 @@ def index():
 # function  accepts only POST requests:
 @app.route('/predict', methods=['GET', 'POST'])
 def upload():
-    if request.method == 'POST':
+
+   
+    if request.method == 'POST': 
+        seconds1 = time.time()
         # Get the file from post request
         f=[]
         for item in request.files.getlist('file1'):
             f.append(item)
-        
+        f1 = request.files['file1']
+        f2 = request.files['file1']
 
         # Save the file to ./uploads
         basepath = os.path.dirname(__file__)
@@ -76,6 +82,8 @@ def upload():
         pred_report = make_prediction(file_path1, file_path2, model)
 
         # result = str(pred_class[0][0][1])               # Convert to string
+        seconds2 = time.time()
+        print("totalTime: ", seconds2-seconds1)
         return pred_report[0]
     return None
 if __name__ == '__main__':
