@@ -26,8 +26,8 @@ class R2GenModel(nn.Module):
     def forward_iu_xray(self, images, targets=None, mode='train'):
         att_feats_0, fc_feats_0 = self.visual_extractor(images[:, 0]) # patch_feats, avg_feats
         att_feats_1, fc_feats_1 = self.visual_extractor(images[:, 1]) # twice calling to visual_extractor becaose front & letiral
-        fc_feats = torch.cat((fc_feats_0, fc_feats_1), dim=1)
-        att_feats = torch.cat((att_feats_0, att_feats_1), dim=1)
+        fc_feats = torch.cat((fc_feats_0, fc_feats_1), dim=1) # ([16, 1024])
+        att_feats = torch.cat((att_feats_0, att_feats_1), dim=1) # ([16, 98, 512])
         if mode == 'train':
             output = self.encoder_decoder(fc_feats, att_feats, targets, mode='forward')
         elif mode == 'sample':

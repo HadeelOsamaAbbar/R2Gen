@@ -30,7 +30,9 @@ def pack_wrapper(module, att_feats, att_masks):
         packed, inv_ix = sort_pack_padded_sequence(att_feats, att_masks.data.long().sum(1))
         return pad_unsort_packed_sequence(PackedSequence(module(packed[0]), packed[1]), inv_ix)
     else:
-        return module(att_feats)
+        r = torch.transpose(att_feats, 0, 1)
+        r = torch.transpose(att_feats, 1, 0)
+        return module(att_feats) # ([16, 98, 512]) vgg,,,,,, # ([16, 98, 2048]) resnet
 
 
 class AttModel(CaptionModel):
@@ -59,7 +61,7 @@ class AttModel(CaptionModel):
                 ((nn.BatchNorm1d(self.att_feat_size),) if self.use_bn else ()) +
                 (nn.Linear(self.att_feat_size, self.input_encoding_size),
                  nn.ReLU(),
-                 nn.Dropout(self.drop_prob_lm)) +
+                 nn.Dropout(self.drop_prob_lm)) + 
                 ((nn.BatchNorm1d(self.input_encoding_size),) if self.use_bn == 2 else ())))
 
     def clip_att(self, att_feats, att_masks):
@@ -153,7 +155,7 @@ class AttModel(CaptionModel):
         batch_size = fc_feats.size(0)
         state = self.init_hidden(batch_size * sample_n)
 
-        p_fc_feats, p_att_feats, pp_att_feats, p_att_masks = self._prepare_feature(fc_feats, att_feats, att_masks)
+        p_fc_feats, p_att_feats, pp_att_feats, p_att_masks = self._prepare_feature(fc_feats, att_feats, att_masks) ###
 
         if sample_n > 1:
             p_fc_feats, p_att_feats, pp_att_feats, p_att_masks = utils.repeat_tensors(sample_n,
