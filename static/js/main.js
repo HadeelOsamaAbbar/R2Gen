@@ -4,22 +4,34 @@ $(document).ready(function () {
     $('.loader').hide();
     $('#result').hide();
 
+
     // Upload Preview
     function readURL(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                $('#imagePreview').css('background-image', 'url(' + e.target.result + ')');
-                $('#imagePreview').hide();
-                $('#imagePreview').fadeIn(650);
-
-              //  $('#imagePreview1').css('background-image', 'url(' + e.target.result + ')');
-              //  $('#imagePreview1').hide();
-              //  $('#imagePreview1').fadeIn(650);
-            }
-            reader.readAsDataURL(input.files[0]);
+        var files = input.files;
+        var input1 = files[0];
+        var input2 = files[1];
+        var preview1 = $("#imagePreview");
+        var preview2 = $("#imagePreview1");
+    
+        var reader1 = new FileReader();
+        reader1.onload = function (e) {
+            // Display the selected image in the first preview element
+            preview1.css('background-image', 'url(' + e.target.result + ')');
+            preview1.hide();
+            preview1.fadeIn(650);
         }
+        reader1.readAsDataURL(input1);
+    
+        var reader2 = new FileReader();
+        reader2.onload = function (e) {
+            // Display the selected image in the second preview element
+            preview2.css('background-image', 'url(' + e.target.result + ')');
+            preview2.hide();
+            preview2.fadeIn(650);
+        }
+        reader2.readAsDataURL(input2);
     }
+
     $("#imageUpload").change(function () {
         $('.image-section').show();
         $('#btn-predict').show();
