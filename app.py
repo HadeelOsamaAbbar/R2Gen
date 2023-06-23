@@ -45,7 +45,7 @@ np.random.seed(args.seed)
 # create tokenizer
 tokenizer = Tokenizer(args)
 model = R2GenModel(args, tokenizer)
-load_path = "results/iu_xray/model_best.pth"
+load_path = "results/iu_xray1/model_best.pth"
 # model = model.load("results/iu_xray/model_best.pth",map_location=torch.device('cpu'))
 checkpoint = torch.load(load_path, map_location=torch.device('cpu'))
 model.load_state_dict(checkpoint['state_dict'])
@@ -55,6 +55,7 @@ model.load_state_dict(checkpoint['state_dict'])
 @app.route('/', methods=['GET'])
 def index():
     # Main page
+    print("helloooo")
     return render_template('index.html')
 
 # function  accepts only POST requests:

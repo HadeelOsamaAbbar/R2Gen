@@ -1,35 +1,38 @@
 {% extends "base.html" %} {% block content %}
-<div class="allcomp">
-    <h2>Medical Report Generation</h2>
 
-    <div>
-        <form id="upload-file" method="post" enctype="multipart/form-data">
-            <label for="imageUpload" class="upload-label">
-                Choose images...
-            </label>
-            <input type="file" name="file1" id="imageUpload" multiple accept=".png, .jpg, .jpeg">
-        
-        </form>
+<h2>Medical Report Generation (MGR)</h2>
 
-        <div class="image-section" style="display:none;">
-            <div class="img-preview">
-                <div id="imagePreview">
-                </div>
-                <div id="imagePreview">
-                </div>
-            </div>
-            <div>
-                <button type="button" class="btn btn-primary btn-lg " id="btn-predict">Predict!</button>
-            </div>
+<div>
+    <form id="upload-file" method="post" enctype="multipart/form-data">
+        <label for="imageUpload" class="upload-label">
+            Choose images...
+        </label>
+        <input type="file" name="file1" id="imageUpload" multiple accept=".png, .jpg, .jpeg">
+
+    </form>
+
+    <div class="image-section" style="display:none;">
+        <div class="img-preview">
+            <div id="imagePreview">
+            </div>    
         </div>
 
-        <div class="loader" style="display:none;"></div>
+        <!-- <div class="img-preview">
+            <div id="imagePreview1">
+            </div>    
+        </div> -->
 
-        <h3 id="result">
-            <span> </span>
-        </h3>
-
+        <div>
+            <button type="button" class="btn btn-primary btn-lg " id="btn-predict">Predict!</button>
+        </div>
     </div>
+
+    <div class="loader" style="display:none;"></div>
+
+    <h3 id="result">
+        <span> </span>
+    </h3>
+
 </div>
 
 {% endblock %}

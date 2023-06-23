@@ -12,9 +12,11 @@ $(document).ready(function () {
                 $('#imagePreview').css('background-image', 'url(' + e.target.result + ')');
                 $('#imagePreview').hide();
                 $('#imagePreview').fadeIn(650);
-                
+
+              //  $('#imagePreview1').css('background-image', 'url(' + e.target.result + ')');
+              //  $('#imagePreview1').hide();
+              //  $('#imagePreview1').fadeIn(650);
             }
-           
             reader.readAsDataURL(input.files[0]);
         }
     }
@@ -47,7 +49,7 @@ $(document).ready(function () {
                 // Get and display the result
                 $('.loader').hide();
                 $('#result').fadeIn(600);
-                $('#result').text('Report:\n\n' + data);
+                $('#result').text(' Result:  ' + data);
                 console.log('Success!');
             },
         });

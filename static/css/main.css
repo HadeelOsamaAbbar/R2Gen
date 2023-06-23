@@ -1,11 +1,3 @@
-body{
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    display: flex;
-    justify-content: center;
-    font-size: 25px;
-
-}
-
 .img-preview {
     width: 256px;
     height: 256px;
@@ -51,12 +43,7 @@ input[type="file"] {
     height: 50px;
     animation: spin 1s linear infinite;
 }
-#result{
-    border: 8px solid #f3f3f3; 
-    background: #b9d0e8;
-    border-radius: 5px;
-    padding: 10px;
-}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
