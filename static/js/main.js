@@ -61,7 +61,12 @@ $(document).ready(function () {
                 // Get and display the result
                 $('.loader').hide();
                 $('#result').fadeIn(600);
-                $('#result').text(' Result:  ' + data);
+                var responseParts = data.split(",");
+                var res = responseParts[0];
+                var word = responseParts[1];
+                var keys = responseParts[2];
+                $('#result').html('<strong><i>Resultant Report:</i> </strong><br>' + res + '<br><br>' + word + '<br>' + keys);
+                
                 console.log('Success!');
             },
         });

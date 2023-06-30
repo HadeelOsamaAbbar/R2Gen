@@ -6,7 +6,7 @@ import torch
 from torchvision import transforms
 from main_test import *
 import time
-
+from user_keywords import *
 app = Flask(__name__)
 
 # # preprocess Image #
@@ -45,18 +45,31 @@ np.random.seed(args.seed)
 # create tokenizer
 tokenizer = Tokenizer(args)
 model = R2GenModel(args, tokenizer)
-load_path = "results/iu_xray1/model_best.pth"
+load_path = "results/iu_xray/model_best.pth"
 # model = model.load("results/iu_xray/model_best.pth",map_location=torch.device('cpu'))
 checkpoint = torch.load(load_path, map_location=torch.device('cpu'))
 model.load_state_dict(checkpoint['state_dict'])
 # @app.route('/')
 # def hello():
 #     return 'Hello World!'
-@app.route('/', methods=['GET'])
+@app.route('/')
 def index():
     # Main page
     print("helloooo")
-    return render_template('index.html')
+    return render_template('home.html')
+
+#move from home page to doctor page:
+@app.route('/getStart', methods=['GET', 'POST'])
+def getStart():
+    if request.method == 'POST':
+      print("starttttt")
+      return render_template('index.html')
+    
+
+# @app.route('/')
+# def doctorPage():
+#     print("doctorPage??????")
+#     return render_template('index.html')
 
 # function  accepts only POST requests:
 @app.route('/predict', methods=['GET', 'POST'])
@@ -85,7 +98,14 @@ def upload():
         # result = str(pred_class[0][0][1])               # Convert to string
         seconds2 = time.time()
         print("totalTime: ", seconds2-seconds1)
-        return pred_report[0]
+        importantKeywords = getkewords(pred_report[0])
+        res = pred_report[0] #+ "\n\n Important Keywords: "
+        keys = ""
+        for word in importantKeywords:
+            keys +=   word + " - "
+        # res[-1].'.'
+        returnValue = res+ "," + "Important Keywords: "+","+keys 
+        return returnValue
     return None
 if __name__ == '__main__':
     app.run()

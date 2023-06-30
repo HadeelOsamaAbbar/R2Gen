@@ -15,6 +15,7 @@
     background-size: 256px 256px;
     background-repeat: no-repeat;
     background-position: center;
+    /* font-style: italic; */
 }
 
 input[type="file"] {
@@ -29,6 +30,7 @@ input[type="file"] {
     font-size: 1em;
     transition: all .4s;
     cursor: pointer;
+    margin: 20px
 }
 
 .upload-label:hover{
@@ -44,7 +46,19 @@ input[type="file"] {
     height: 50px;
     animation: spin 1s linear infinite;
 }
-
+.Generation{
+    padding: 10px;
+    margin: 70px;
+    height: 650px;
+}
+#result{
+    border: 8px solid #f3f3f3; 
+    background: #b9d0e8;
+    border-radius: 5px;
+    width: 60%;
+    padding: 10px;
+    justify-content: left;
+}
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
