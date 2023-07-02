@@ -65,11 +65,26 @@ $(document).ready(function () {
                 var res = responseParts[0];
                 var word = responseParts[1];
                 var keys = responseParts[2];
-                $('#result').html('<strong><i>Resultant Report:</i> </strong><br>' + res + '<br><br>' + word + '<br>' + keys);
-                
+                var full_report = responseParts[3];
+                if ($('#extractKeys').is(':checked') && $('#completeReport').is(':checked')){
+                    $('#result').html('<strong><i>Resultant Report:</i> </strong><br>' + res + '<br><br>' + word + '<br>'
+                     + keys+ '<br><br>' +'Translated Report:'+ '<br>' + full_report)
+                }
+                else if($('#extractKeys').is(':checked')){
+                    $('#result').html('<strong><i>Resultant Report:</i> </strong><br>' + res + '<br><br>' + word + '<br>'
+                     + keys+ '<br>')
+                }
+                else if($('#completeReport').is(':checked')){
+                    $('#result').html('<strong><i>Resultant Report:</i> </strong><br>' + res + '<br><br>' +'Translated Report:'+ '<br>' + full_report)
+                }
+                else{
+                    $('#result').html('<strong><i>Resultant Report:</i> </strong><br>' + res);
+                }
+                               
                 console.log('Success!');
             },
         });
+       
     });
 
 });

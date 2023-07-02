@@ -25,9 +25,9 @@ def getkewords_yake(text):
     custom_kw_extractor = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_threshold,
                                                 top=numOfKeywords, features=None)
     keywords = custom_kw_extractor.extract_keywords(text)
-    for kw in keywords:
-        print(kw)
-        print(kw[0])
+    # for kw in keywords:
+    #     print(kw)
+    #     print(kw[0])
 
 
 #perform keyword extraction from medical text in Python using the Natural Language Toolkit (NLTK) and the TextRank algorithm:
@@ -91,16 +91,16 @@ def getkewords(text):
         if token.text in medical_words:
             medical_keywords.append(token.text)
 
-    print(medical_keywords)
+    # print(medical_keywords)
     # print(keywords)
 
     final_keywords = keywords + medical_keywords
     # print(final_keywords)
 
     final_keywords = list(set(final_keywords))
-    print("finalll  resultt")
+    # print("finalll  resultt")
 
-    print(final_keywords)
+    # print(final_keywords)
 
     return final_keywords
 

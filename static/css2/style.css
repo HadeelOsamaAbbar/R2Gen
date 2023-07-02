@@ -3,6 +3,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: ' Roboto Merriweather';
 }
 
 /* General Styles */
@@ -22,6 +23,7 @@ header {
   top: 0;
   left: 0;
   width: 100%;
+  z-index: 999;
 }
 
 .logo h1 {
@@ -151,22 +153,26 @@ footer {
   justify-content: center;
   background-color: #f0f0f0;
   height: 50px;
+  position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
 }
 
 footer p {
   font-size: 16px;
 }
 
-#doctorName,
-#userName {
+
+#myTextBox {
   padding: 10px;
   border: 2px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
 }
 
-#doctorName:focus,
-#userName:focus {
+#myTextBox:focus {
   outline: none;
   border-color: #555;
 }
